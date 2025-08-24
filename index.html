@@ -46,6 +46,28 @@
         .chart-bar {
             transition: height 0.5s ease-in-out;
         }
+        /* Table styling for All Records page */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .report-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .report-table tbody tr:nth-child(even) {
+            background-color: #f0f4f8;
+        }
+        .report-table tbody tr:hover {
+            background-color: #e2e8f0;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
@@ -66,6 +88,9 @@
                     </button>
                     <button onclick="showPage('results')" class="nav-btn px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 transition-colors">
                         <i class="fas fa-chart-bar mr-2"></i>Results
+                    </button>
+                    <button onclick="showPage('all-records')" class="nav-btn px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 transition-colors">
+                        <i class="fas fa-list-alt mr-2"></i>All Records
                     </button>
                 </nav>
             </div>
@@ -674,6 +699,67 @@
         </div>
     </div>
 
+    <!-- Page 4: All Records -->
+    <div id="all-records" class="page">
+        <div class="container mx-auto px-4 py-8">
+            <div class="bg-white rounded-2xl shadow-xl p-6 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-list-alt text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">All Records</h2>
+                </div>
+
+                <!-- Filter Options for All Records -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-building mr-2 text-orange-500"></i>Floor
+                        </label>
+                        <select id="allRecordsFloorSelect" onchange="updateAllRecordsRoomOptions()" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            <option value="">All Floors</option>
+                            <option value="1">1st Floor</option>
+                            <option value="2">2nd Floor</option>
+                            <option value="3">3rd Floor</option>
+                            <option value="4">4th Floor</option>
+                            <option value="5">5th Floor</option>
+                            <option value="6">6th Floor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-door-open mr-2 text-orange-500"></i>Room Number
+                        </label>
+                        <select id="allRecordsRoomSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            <option value="">All Rooms</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-filter mr-2 text-orange-500"></i>Report Type
+                        </label>
+                        <select id="allRecordsReportTypeSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            <option value="all">All Types</option>
+                            <option value="cleaning">Cleaning Report</option>
+                            <option value="maintenance">Maintenance Report</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="text-center mb-8">
+                    <button onclick="displayAllRecords()" class="bg-gradient-to-r from-orange-500 to-yellow-600 hover:from-orange-600 hover:to-yellow-700 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
+                        <i class="fas fa-search mr-2"></i>Show Records
+                    </button>
+                </div>
+
+                <!-- All Records Display Area -->
+                <div id="allRecordsDisplay" class="overflow-x-auto">
+                    <p class="text-gray-600 text-center">Select filters and click "Show Records" to view data.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
@@ -699,6 +785,9 @@ const firebaseConfig = {
             // If navigating to results, generate them
             if (pageId === 'results') {
                 generateResults();
+            } else if (pageId === 'all-records') {
+                // Optionally, trigger displayAllRecords on page load for this section
+                // displayAllRecords(); // Uncomment if you want it to load automatically
             }
         }
 
@@ -728,6 +817,25 @@ const firebaseConfig = {
             const selectedFloor = floorSelect.value;
 
             roomSelect.innerHTML = '<option value="">Please select a floor first</option>'; // Reset rooms
+
+            if (selectedFloor) {
+                for (let i = 1; i <= 14; i++) {
+                    const roomNumber = parseInt(selectedFloor) * 100 + i;
+                    const option = document.createElement('option');
+                    option.value = roomNumber;
+                    option.textContent = roomNumber;
+                    roomSelect.appendChild(option);
+                }
+            }
+        }
+
+        // Function to update room options for All Records page
+        function updateAllRecordsRoomOptions() {
+            const floorSelect = document.getElementById('allRecordsFloorSelect');
+            const roomSelect = document.getElementById('allRecordsRoomSelect');
+            const selectedFloor = floorSelect.value;
+
+            roomSelect.innerHTML = '<option value="">All Rooms</option>'; // Reset rooms, include "All Rooms" option
 
             if (selectedFloor) {
                 for (let i = 1; i <= 14; i++) {
@@ -894,7 +1002,7 @@ const firebaseConfig = {
             }
         }
 
-        // Function to fetch and generate results
+        // Function to fetch and generate results (existing function)
         async function generateResults() {
             const selectedFloor = document.getElementById('resultsFloorSelect').value;
             const selectedDate = document.getElementById('resultsDate').value;
@@ -1010,6 +1118,155 @@ const firebaseConfig = {
                 alert("Failed to load results. Please check console for details.");
             }
         }
+
+        // New function to display all records
+        async function displayAllRecords() {
+            const selectedFloor = document.getElementById('allRecordsFloorSelect').value;
+            const selectedRoom = document.getElementById('allRecordsRoomSelect').value;
+            const reportType = document.getElementById('allRecordsReportTypeSelect').value;
+            const allRecordsDisplay = document.getElementById('allRecordsDisplay');
+
+            allRecordsDisplay.innerHTML = '<p class="text-gray-600 text-center">Loading records...</p>';
+
+            let allReports = [];
+
+            try {
+                if (reportType === 'all' || reportType === 'cleaning') {
+                    const cleaningSnapshot = await database.ref('cleaningReports').once('value');
+                    cleaningSnapshot.forEach(childSnapshot => {
+                        allReports.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                    });
+                }
+
+                if (reportType === 'all' || reportType === 'maintenance') {
+                    const maintenanceSnapshot = await database.ref('maintenanceReports').once('value');
+                    maintenanceSnapshot.forEach(childSnapshot => {
+                        allReports.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                    });
+                }
+
+                let filteredRecords = allReports.filter(report => {
+                    let matchesFloor = true;
+                    if (selectedFloor) {
+                        matchesFloor = report.floor == parseInt(selectedFloor);
+                    }
+
+                    let matchesRoom = true;
+                    if (selectedRoom) {
+                        matchesRoom = report.room == parseInt(selectedRoom);
+                    }
+                    return matchesFloor && matchesRoom;
+                });
+
+                if (filteredRecords.length === 0) {
+                    allRecordsDisplay.innerHTML = '<p class="text-gray-600 text-center">No records found for the selected filters.</p>';
+                    return;
+                }
+
+                // Sort records by timestamp (most recent first)
+                filteredRecords.sort((a, b) => b.timestamp - a.timestamp);
+
+                let tableHtml = `
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Floor</th>
+                                <th>Room</th>
+                                <th>Staff/Technician</th>
+                                <th>Total Score</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                filteredRecords.forEach(record => {
+                    const name = record.type === 'cleaning' ? record.staffName : record.technicianName;
+                    tableHtml += `
+                        <tr>
+                            <td>${record.type.charAt(0).toUpperCase() + record.type.slice(1)}</td>
+                            <td>${record.date}</td>
+                            <td>${record.floor}</td>
+                            <td>${record.room}</td>
+                            <td>${name}</td>
+                            <td>${record.totalScore}</td>
+                            <td><button onclick="showRecordDetails('${record.id}', '${record.type}')" class="text-blue-600 hover:underline">View</button></td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += `
+                        </tbody>
+                    </table>
+                `;
+                allRecordsDisplay.innerHTML = tableHtml;
+
+            } catch (error) {
+                console.error("Error fetching all records:", error);
+                allRecordsDisplay.innerHTML = '<p class="text-red-500 text-center">Failed to load records. Please try again.</p>';
+            }
+        }
+
+        // Function to show detailed record in a modal or new section
+        async function showRecordDetails(recordId, recordType) {
+            let recordRef;
+            if (recordType === 'cleaning') {
+                recordRef = database.ref('cleaningReports/' + recordId);
+            } else if (recordType === 'maintenance') {
+                recordRef = database.ref('maintenanceReports/' + recordId);
+            } else {
+                alert('Unknown record type.');
+                return;
+            }
+
+            try {
+                const snapshot = await recordRef.once('value');
+                const record = snapshot.val();
+
+                if (!record) {
+                    alert('Record not found.');
+                    return;
+                }
+
+                let detailsHtml = `
+                    <div class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4">
+                        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl relative">
+                            <button onclick="document.getElementById('recordDetailsModal').remove()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+                            <h3 class="text-2xl font-bold mb-4">${record.type.charAt(0).toUpperCase() + record.type.slice(1)} Report Details</h3>
+                            <p><strong>Date:</strong> ${record.date}</p>
+                            <p><strong>Floor:</strong> ${record.floor}</p>
+                            <p><strong>Room:</strong> ${record.room}</p>
+                            <p><strong>${record.type === 'cleaning' ? 'Staff Name' : 'Technician Name'}:</strong> ${record.type === 'cleaning' ? record.staffName : record.technicianName}</p>
+                            <p><strong>Total Score:</strong> ${record.totalScore}</p>
+                            <h4 class="text-xl font-semibold mt-4 mb-2">Ratings:</h4>
+                            <ul class="list-disc list-inside space-y-1">
+                `;
+
+                for (const key in record.ratings) {
+                    // Format key for display (e.g., "bedGodown" to "Bed & Godown")
+                    const formattedKey = key.replace(/([A-Z])/g, ' \$1').replace(/-/g, ' ').replace(/^(.)|\s(.)/g, c => c.toUpperCase());
+                    detailsHtml += `<li><strong>${formattedKey}:</strong> ${record.ratings[key]} points</li>`;
+                }
+
+                detailsHtml += `
+                            </ul>
+                        </div>
+                    </div>
+                `;
+
+                const modalDiv = document.createElement('div');
+                modalDiv.id = 'recordDetailsModal';
+                modalDiv.innerHTML = detailsHtml;
+                document.body.appendChild(modalDiv);
+
+            } catch (error) {
+                console.error("Error fetching record details:", error);
+                alert("Failed to load record details.");
+            }
+        }
+
 
         // Initialize page on load
         document.addEventListener('DOMContentLoaded', () => {
